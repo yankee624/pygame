@@ -18,7 +18,7 @@ class Player(pg.sprite.Sprite):
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.midbottom = (x,HEIGHT)
-        self.pos = self.rect.center
+        self.pos = vec(self.rect.center)
         self.vel = vec(0,0)
         self.acc = vec(0,0)
         
@@ -34,7 +34,7 @@ class Player(pg.sprite.Sprite):
         
     def update(self):
         self.acc.y = GRAV
-        self.rect.center += vec(int(self.vel.x),int(self.vel.y))
+        self.pos += self.vel #vec(int(self.vel.x),int(self.vel.y))
         #int안해주면 -> vel 양수면 rect가 예상보다 작아지고, vel 음수면 rect 예상보다 커짐(-1.5는 -2가됨)
         
         #floating inaccuracy 방지
@@ -43,15 +43,18 @@ class Player(pg.sprite.Sprite):
         if abs(self.vel.y) < 0.1:
             self.vel.y = 0
         
-        if self.rect.bottom > HEIGHT:
-            self.rect.bottom = HEIGHT
+        if self.pos.y > HEIGHT - self.rect.height / 2:
+            self.pos.y = HEIGHT - self.rect.height / 2
             self.vel.y = 0
-        if self.rect.left < 0:
-            self.rect.left = 0
-        if self.rect.right > WIDTH:
-            self.rect.right = WIDTH
+        if self.pos.x < self.rect.width / 2:
+            self.pos.x = self.rect.width / 2
+        if self.pos.x > WIDTH - self.rect.width / 2:
+            self.pos.x = WIDTH - self.rect.width / 2
+
                 
         self.vel += self.acc
+        self.rect.center = self.pos
+        
         #friction
         self.vel.x += self.vel.x * PLAYER_FRICTION
         
@@ -90,27 +93,27 @@ class Ball(pg.sprite.Sprite):
         self.acc.y = GRAV
         self.pos += vec(self.vel.x,self.vel.y) #바로 rect에 집어넣으면 data loss(소숫점 버리니까)
         #pos에 먼저 넣으면 pos은 data loss 안일어남. 그후 rect를 계속 pos값으로 동기화시키기
-        self.rect.center = self.pos
         
         #floating inaccuracy 방지
-        if abs(self.vel.x) < 0.1:
+        if abs(self.vel.x) < 0.01:
             self.vel.x = 0
-        if abs(self.vel.y) < 0.1:
+        if abs(self.vel.y) < 0.01:
             self.vel.y = 0
         
         #경계 넘어갈 시 bounce
-        if self.rect.bottom > HEIGHT:
-            self.rect.bottom = HEIGHT
+        if self.pos.y > HEIGHT - self.rect.height / 2:
+            self.pos.y = HEIGHT - self.rect.height / 2
             self.vel.y *= -0.9
             
-        if self.rect.left < 0:
-            self.rect.left = 0
-            self.vel *= -0.9
+        if self.pos.x < self.rect.width / 2:
+            self.pos.x = self.rect.width / 2
+            self.vel.x *= -0.9
         
-        if self.rect.right > WIDTH:
-            self.rect.right = WIDTH
-            self.vel *= -0.9
+        if self.pos.x > WIDTH - self.rect.width / 2:
+            self.pos.x = WIDTH - self.rect.width / 2
+            self.vel.x *= -0.9
 
+        self.rect.center = self.pos
 
         self.vel += self.acc
         

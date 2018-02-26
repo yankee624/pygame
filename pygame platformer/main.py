@@ -16,8 +16,9 @@ from sprites import *
 class Game:
     def __init__(self):
         #initialize game window, clock, etc
+        pg.mixer.pre_init(22050,-16, 2, 2048) #마지막 변수 줄이면 사운드 지연 줄이기 가능
         pg.init()
-        pg.mixer.init()
+        #pg.mixer.init()
         self.screen = pg.display.set_mode((WIDTH,HEIGHT))
         pygame.display.set_caption(TITLE)
         self.clock = pygame.time.Clock()
